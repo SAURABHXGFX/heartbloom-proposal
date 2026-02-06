@@ -53,18 +53,18 @@ const BloomingHeart = ({ onComplete }: BloomingHeartProps) => {
       // Target position relative to center (scaled)
       targetX: point.x * scale,
       targetY: point.y * scale,
-      size: 5 + Math.random() * 7,
-      delay: Math.random() * 1.5,
+      size: 4.5 + Math.random() * 6,
+      delay: Math.random() * 0.9,
       opacity: 0.7 + Math.random() * 0.3,
     }));
 
     setParticles(newParticles);
     
-    setTimeout(() => setPhase("forming"), 300);
+    setTimeout(() => setPhase("forming"), 160);
     setTimeout(() => {
       setPhase("complete");
-      setTimeout(onComplete, 1200);
-    }, 6500);
+      setTimeout(onComplete, 900);
+    }, 4300);
   }, [onComplete]);
 
   return (
@@ -102,14 +102,19 @@ const BloomingHeart = ({ onComplete }: BloomingHeartProps) => {
               x: phase === "scatter" ? particle.startX + "vw" : particle.targetX,
               y: phase === "scatter" ? particle.startY + "vh" : particle.targetY,
               opacity: phase === "scatter" ? 0.5 : particle.opacity,
-              scale: phase === "complete" ? [1, 1.15, 1] : 1,
+              scale:
+                phase === "forming"
+                  ? [0.6, 1.15, 1]
+                  : phase === "complete"
+                    ? [1, 1.12, 1]
+                    : 1,
             }}
             transition={{
-              duration: phase === "forming" ? 3.5 + particle.delay : 0.4,
-              ease: [0.25, 0.1, 0.25, 1],
-              delay: phase === "scatter" ? particle.delay * 0.2 : 0,
+              duration: phase === "forming" ? 2.1 + particle.delay : 0.35,
+              ease: [0.2, 0.7, 0.2, 1],
+              delay: phase === "scatter" ? particle.delay * 0.15 : 0,
               scale: {
-                duration: 1.2,
+                duration: 0.8,
                 repeat: phase === "complete" ? 1 : 0,
                 ease: "easeInOut",
               },
@@ -121,7 +126,7 @@ const BloomingHeart = ({ onComplete }: BloomingHeartProps) => {
       {/* Sparkles */}
       {phase !== "scatter" && (
         <>
-          {[...Array(10)].map((_, i) => (
+          {[...Array(12)].map((_, i) => (
             <motion.div
               key={`sparkle-${i}`}
               className="absolute w-1.5 h-1.5 rounded-full bg-cream"
@@ -132,10 +137,10 @@ const BloomingHeart = ({ onComplete }: BloomingHeartProps) => {
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
               transition={{
-                duration: 1.8,
-                delay: 2.5 + i * 0.25,
+                duration: 1.5,
+                delay: 1.4 + i * 0.18,
                 repeat: Infinity,
-                repeatDelay: 2.5,
+                repeatDelay: 1.8,
               }}
             />
           ))}

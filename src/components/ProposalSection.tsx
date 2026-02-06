@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import SuccessDialog from "./SuccessDialog";
 
@@ -6,20 +6,20 @@ const ProposalSection = () => {
   const [noButtonPosition, setNoButtonPosition] = useState({ x: 0, y: 0 });
   const [escapeCount, setEscapeCount] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleNoHover = () => {
-    if (!containerRef.current) return;
+  const handleNoEscape = () => {
+    // Random escape in a circular pattern around current position
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 80 + Math.random() * 60;
     
-    const container = containerRef.current.getBoundingClientRect();
-    const maxX = container.width / 2 - 60;
-    const maxY = container.height / 3;
+    const newX = Math.cos(angle) * distance;
+    const newY = Math.sin(angle) * distance;
     
-    // Randomize position with playful movement
-    const newX = (Math.random() - 0.5) * maxX * 2;
-    const newY = (Math.random() - 0.5) * maxY * 2;
+    // Keep within reasonable bounds
+    const boundedX = Math.max(-120, Math.min(120, noButtonPosition.x + newX));
+    const boundedY = Math.max(-100, Math.min(100, noButtonPosition.y + newY));
     
-    setNoButtonPosition({ x: newX, y: newY });
+    setNoButtonPosition({ x: boundedX, y: boundedY });
     setEscapeCount(prev => prev + 1);
   };
 
@@ -27,49 +27,28 @@ const ProposalSection = () => {
     setShowSuccess(true);
   };
 
-  const getNoButtonMessage = () => {
-    const messages = [
-      "No",
-      "Are you sure?",
-      "Really?",
-      "Think again!",
-      "Please? 🥺",
-      "One more chance?",
-      "Pretty please?",
-      "💔",
-    ];
-    return messages[Math.min(escapeCount, messages.length - 1)];
+  const getNoButtonText = () => {
+    const texts = ["No", "Nope!", "Sure?", "Really?", "🥺", "Please?", "Why not?", "💔"];
+    return texts[Math.min(escapeCount, texts.length - 1)];
   };
 
   return (
     <>
       <motion.div
-        ref={containerRef}
-        className="fixed inset-0 flex flex-col items-center justify-center bg-background overflow-hidden px-6"
+        className="fixed inset-0 flex flex-col items-center justify-center bg-background overflow-hidden px-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
+        transition={{ duration: 0.8 }}
       >
-        {/* Background elements */}
+        {/* Floating hearts background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {/* Floating hearts */}
-          {[...Array(8)].map((_, i) => (
+          {[...Array(6)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute text-primary/20 text-2xl"
-              style={{
-                left: `${10 + i * 12}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                y: [0, -20, 0],
-                opacity: [0.2, 0.4, 0.2],
-              }}
-              transition={{
-                duration: 3 + Math.random() * 2,
-                repeat: Infinity,
-                delay: i * 0.5,
-              }}
+              className="absolute text-primary/15 text-3xl"
+              style={{ left: `${15 + i * 14}%`, top: `${20 + (i % 3) * 25}%` }}
+              animate={{ y: [0, -15, 0], opacity: [0.15, 0.3, 0.15] }}
+              transition={{ duration: 3 + i * 0.5, repeat: Infinity, delay: i * 0.3 }}
             >
               ♥
             </motion.div>
@@ -77,112 +56,107 @@ const ProposalSection = () => {
         </div>
 
         {/* Central glow */}
-        <div className="absolute w-80 h-80 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute w-72 h-72 rounded-full bg-primary/15 blur-3xl" />
 
         {/* Main content */}
         <motion.div
-          className="relative z-10 text-center max-w-md"
-          initial={{ y: 30, opacity: 0 }}
+          className="relative z-10 text-center w-full max-w-sm px-4"
+          initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
         >
-          {/* Heart icon */}
+          {/* Animated heart */}
           <motion.div
-            className="text-6xl mb-6"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="text-5xl md:text-6xl mb-5"
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
           >
             💕
           </motion.div>
 
           {/* Proposal text */}
           <motion.h1
-            className="font-romantic text-4xl md:text-5xl text-foreground mb-4 leading-tight"
-            initial={{ opacity: 0, y: 20 }}
+            className="font-romantic text-3xl md:text-4xl lg:text-5xl text-foreground mb-3 leading-tight"
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
           >
             Will you be my
-            <span className="block text-primary mt-2">Valentine?</span>
+            <span className="block text-primary mt-1">Valentine?</span>
           </motion.h1>
 
           <motion.p
-            className="font-soft text-muted-foreground text-lg mb-12"
+            className="font-soft text-muted-foreground text-base md:text-lg mb-10"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 0.8 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
           >
             I've been waiting to ask you this...
           </motion.p>
 
-          {/* Buttons container */}
-          <div className="relative h-32 flex items-center justify-center gap-6">
-            {/* Yes button */}
+          {/* Buttons */}
+          <motion.div 
+            className="relative flex flex-col sm:flex-row items-center justify-center gap-4 min-h-[140px]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            {/* Yes button - always centered and prominent */}
             <motion.button
-              className="px-10 py-4 bg-primary text-primary-foreground font-soft font-semibold text-lg rounded-full shadow-glow transition-all hover:scale-105 active:scale-95"
+              className="px-10 py-4 bg-primary text-primary-foreground font-soft font-semibold text-lg rounded-full shadow-glow z-10"
               onClick={handleYesClick}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.95 }}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 1, duration: 0.5 }}
             >
               Yes! 💖
             </motion.button>
 
             {/* No button - escapes on hover/touch */}
             <motion.button
-              className="px-8 py-4 bg-muted text-muted-foreground font-soft font-medium text-lg rounded-full transition-all"
-              onMouseEnter={handleNoHover}
-              onTouchStart={handleNoHover}
+              className="absolute px-6 py-3 bg-muted/80 text-muted-foreground font-soft font-medium text-base rounded-full border border-border/50 touch-none"
+              style={{ right: "10%", top: "50%" }}
+              onMouseEnter={handleNoEscape}
+              onTouchStart={handleNoEscape}
+              onClick={handleNoEscape}
               animate={{
                 x: noButtonPosition.x,
                 y: noButtonPosition.y,
+                rotate: escapeCount > 3 ? [0, -5, 5, 0] : 0,
               }}
               transition={{
                 type: "spring",
-                stiffness: 300,
-                damping: 20,
+                stiffness: 400,
+                damping: 25,
               }}
-              initial={{ opacity: 0, x: 20 }}
-              whileHover={{ scale: 0.95 }}
+              whileHover={{ scale: 0.9 }}
             >
-              {getNoButtonMessage()}
+              {getNoButtonText()}
             </motion.button>
-          </div>
+          </motion.div>
 
-          {/* Playful hint after escapes */}
+          {/* Hint text */}
           <AnimatePresence>
-            {escapeCount >= 3 && (
+            {escapeCount >= 2 && (
               <motion.p
-                className="mt-8 text-blush/60 font-soft text-sm italic"
-                initial={{ opacity: 0, y: 10 }}
+                className="mt-6 text-blush/50 font-soft text-sm italic"
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0 }}
               >
-                {escapeCount >= 6 
-                  ? "Just say yes already! 🥰" 
-                  : "The answer is obvious, isn't it? 💕"}
+                {escapeCount >= 5 ? "Just say yes! 🥰" : "Hmm, that button is shy... 💕"}
               </motion.p>
             )}
           </AnimatePresence>
         </motion.div>
 
         {/* Bottom sparkles */}
-        <div className="absolute bottom-10 left-0 right-0 flex justify-center gap-4">
+        <div className="absolute bottom-8 flex gap-3">
           {[...Array(5)].map((_, i) => (
             <motion.span
               key={i}
-              className="text-primary/40"
-              animate={{
-                opacity: [0.3, 0.8, 0.3],
-                scale: [0.8, 1.2, 0.8],
-              }}
-              transition={{
-                duration: 2,
-                delay: i * 0.2,
-                repeat: Infinity,
-              }}
+              className="text-primary/30 text-lg"
+              animate={{ opacity: [0.2, 0.7, 0.2], scale: [0.9, 1.2, 0.9] }}
+              transition={{ duration: 2, delay: i * 0.15, repeat: Infinity }}
             >
               ✦
             </motion.span>

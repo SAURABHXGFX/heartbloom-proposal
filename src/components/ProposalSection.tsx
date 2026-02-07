@@ -28,7 +28,7 @@ const ProposalSection = () => {
   };
 
   const getNoButtonText = () => {
-    const texts = ["No", "Nope!", "Sure?", "Really?", "🥺", "Please?", "Why not?", "💔"];
+    const texts = ["No", "babe!", "Sure?", "Really?", "🥺", "Please?", "Why not?", "💔"];
     return texts[Math.min(escapeCount, texts.length - 1)];
   };
 
